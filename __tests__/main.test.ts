@@ -1,11 +1,3 @@
-/**
- * Unit tests for the action's main functionality, src/main.ts
- *
- * These should be run as if the action was called from a workflow.
- * Specifically, the inputs listed in `action.yml` should be set as environment
- * variables following the pattern `INPUT_<INPUT_NAME>`.
- */
-
 import * as core from '@actions/core'
 import * as main from '../src/main'
 
@@ -23,67 +15,148 @@ let setFailedMock: jest.SpyInstance
 let setOutputMock: jest.SpyInstance
 
 describe('action', () => {
+  const OLD_ENV = process.env;
+
   beforeEach(() => {
+    jest.resetModules()
     jest.clearAllMocks()
+    process.env = { ...OLD_ENV }
 
     debugMock = jest.spyOn(core, 'debug').mockImplementation()
     errorMock = jest.spyOn(core, 'error').mockImplementation()
     getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
     setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
     setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
-  })
 
-  it('sets the time output', async () => {
-    // Set the action's inputs as return values from core.getInput()
     getInputMock.mockImplementation((name: string): string => {
       switch (name) {
-        case 'milliseconds':
-          return '500'
+        case 'audience':
+          return 'nuget.org'
+        case 'package-source':
+          return 'https://api.nuget.org/v3/index.json'
         default:
           return ''
       }
     })
 
-    await main.run()
-    expect(runMock).toHaveReturned()
+    process.env.ACTIONS_RUNTIME_TOKEN = `a.${btoa(JSON.stringify({ iss: 'me' }))}.z`
+    process.env.ACTIONS_ID_TOKEN_REQUEST_URL = `https://example/my-token-endpoint`
+  })
 
-    // Verify that all of the core library functions were called correctly
-    expect(debugMock).toHaveBeenNthCalledWith(1, 'Waiting 500 milliseconds ...')
-    expect(debugMock).toHaveBeenNthCalledWith(
-      2,
-      expect.stringMatching(timeRegex)
-    )
-    expect(debugMock).toHaveBeenNthCalledWith(
-      3,
-      expect.stringMatching(timeRegex)
-    )
-    expect(setOutputMock).toHaveBeenNthCalledWith(
-      1,
-      'time',
-      expect.stringMatching(timeRegex)
-    )
+  afterAll(() => {
+    process.env = OLD_ENV
+  });
+
+  it('sets the token-info output', async () => {
+    await main.run()
+
+    expect(runMock).toHaveReturned()
+    expect(debugMock).toHaveBeenNthCalledWith(1, 'Input audience: nuget.org')
+    expect(debugMock).toHaveBeenNthCalledWith(2, 'Input package source: https://api.nuget.org/v3/index.json')
+    expect(debugMock).toHaveBeenNthCalledWith(3, 'Runtime token payload: {"iss":"me"}')
+    expect(debugMock).toHaveBeenNthCalledWith(4, 'Token URL: https://example/my-token-endpoint')
+    expect(setOutputMock).toHaveBeenNthCalledWith(1, 'token-info', JSON.stringify({
+      audience: "nuget.org",
+      packageSource: "https://api.nuget.org/v3/index.json",
+      runtimeToken: "a.eyJpc3MiOiJtZSJ9.z",
+      tokenUrl: "https://example/my-token-endpoint"
+    }))
     expect(errorMock).not.toHaveBeenCalled()
   })
 
-  it('sets a failed status', async () => {
-    // Set the action's inputs as return values from core.getInput()
+  it('requires audience input', async () => {
     getInputMock.mockImplementation((name: string): string => {
       switch (name) {
-        case 'milliseconds':
-          return 'this is not a number'
         default:
           return ''
       }
     })
 
     await main.run()
-    expect(runMock).toHaveReturned()
 
-    // Verify that all of the core library functions were called correctly
-    expect(setFailedMock).toHaveBeenNthCalledWith(
-      1,
-      'milliseconds not a number'
-    )
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'The audience input value must be set')
+    expect(setOutputMock).not.toHaveBeenCalled()
+    expect(errorMock).not.toHaveBeenCalled()
+  })
+
+  it('requires package-source input', async () => {
+    getInputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'audience':
+          return 'nuget.org'
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'The package-source input value must be set')
+    expect(setOutputMock).not.toHaveBeenCalled()
+    expect(errorMock).not.toHaveBeenCalled()
+  })
+
+  it('requires valid package source URL', async () => {
+    getInputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'audience':
+          return 'nuget.org'
+        case 'package-source':
+          return 'invalid'
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'An valid HTTPS package source URL is required')
+    expect(setOutputMock).not.toHaveBeenCalled()
+    expect(errorMock).not.toHaveBeenCalled()
+  })
+
+  it('requires HTTPS package source URL', async () => {
+    getInputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'audience':
+          return 'nuget.org'
+        case 'package-source':
+          return 'http://api.nuget.org/v3/index.json' // DevSkim: ignore DS137138
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'An HTTPS package source URL is required. The value provided protocol was http:')
+    expect(setOutputMock).not.toHaveBeenCalled()
+    expect(errorMock).not.toHaveBeenCalled()
+  })
+  
+  it('requires ACTIONS_RUNTIME_TOKEN env var', async () => {
+    process.env.ACTIONS_RUNTIME_TOKEN = ''
+
+    await main.run()
+
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'The ACTIONS_RUNTIME_TOKEN environment variable must be set')
+    expect(setOutputMock).not.toHaveBeenCalled()
+    expect(errorMock).not.toHaveBeenCalled()
+  })
+  
+  it('requires ACTIONS_ID_TOKEN_REQUEST_URL env var', async () => {
+    process.env.ACTIONS_ID_TOKEN_REQUEST_URL = ''
+
+    await main.run()
+
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'The ACTIONS_ID_TOKEN_REQUEST_URL environment variable must be set')
+    expect(setOutputMock).not.toHaveBeenCalled()
     expect(errorMock).not.toHaveBeenCalled()
   })
 })

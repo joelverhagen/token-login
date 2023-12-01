@@ -1,26 +1,59 @@
 import * as core from '@actions/core'
-import { wait } from './wait'
 
-/**
- * The main function for the action.
- * @returns {Promise<void>} Resolves when the action is complete.
- */
+function requireInput(key: string) {
+  const value = core.getInput(key, { required: true, trimWhitespace: true })
+  if (!value) {
+    throw new Error(`The ${key} input value must be set`)
+  }
+  return value
+}
+
+function requireEnv(key: string) {
+  const value = process.env[key]?.trim()
+  if (!value) {
+    throw new Error(`The ${key} environment variable must be set`)
+  }
+  return value
+}
+
+function getTokenClaims(token: string) {
+  const tokenPieces = token.split('.'); // header . payload . signature
+  const payload = Buffer.from(tokenPieces[1], 'base64').toString();
+  return payload;
+}
+
 export async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    const audience = requireInput('audience')
+    core.debug(`Input audience: ${audience}`)
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const packageSource = requireInput('package-source')
+    core.debug(`Input package source: ${packageSource}`)
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    let url;
+    try {
+      url = new URL(packageSource);
+    } catch {
+      throw new Error(`An valid HTTPS package source URL is required`)
+    }
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    if (url.protocol != 'https:') {
+      throw new Error(`An HTTPS package source URL is required. The value provided protocol was ${url.protocol}`)
+    }
+
+    const runtimeToken = requireEnv('ACTIONS_RUNTIME_TOKEN')
+    core.debug(`Runtime token payload: ${getTokenClaims(runtimeToken)}`)
+
+    const tokenUrl = requireEnv('ACTIONS_ID_TOKEN_REQUEST_URL')
+    core.debug(`Token URL: ${tokenUrl}`)
+
+    const tokenInfo = { audience, packageSource, runtimeToken, tokenUrl }
+    core.setOutput('token-info', JSON.stringify(tokenInfo))
   } catch (error) {
-    // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+    } else {
+      throw error
+    }
   }
 }

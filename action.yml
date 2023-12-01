@@ -12,7 +12,7 @@ inputs:
     required: true
     default: 'https://api.nuget.org/v3/index.json'
   audience:
-    description: 'The desired audience claim to use for the OIDC token. Defaults to 'nuget.org'.'
+    description: 'The desired audience claim to use for the OIDC token. Defaults to nuget.org.'
     required: true
     default: 'nuget.org'
 

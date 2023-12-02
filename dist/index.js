@@ -2774,6 +2774,8 @@ function getTokenClaims(token) {
 }
 async function run() {
     try {
+        const username = requireInput('username');
+        core.debug(`Input username: ${username}`);
         const audience = requireInput('audience');
         core.debug(`Input audience: ${audience}`);
         const packageSource = requireInput('package-source');
@@ -2792,7 +2794,7 @@ async function run() {
         core.debug(`Runtime token payload: ${getTokenClaims(runtimeToken)}`);
         const tokenUrl = requireEnv('ACTIONS_ID_TOKEN_REQUEST_URL');
         core.debug(`Token URL: ${tokenUrl}`);
-        const tokenInfo = { audience, packageSource, runtimeToken, tokenUrl };
+        const tokenInfo = { audience, packageSource, runtimeToken, tokenUrl, username };
         core.setOutput('token-info', JSON.stringify(tokenInfo));
     }
     catch (error) {

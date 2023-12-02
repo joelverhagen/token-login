@@ -49,7 +49,10 @@ jobs:
       - name: Test Local Action
         id: test-action
         uses: ./
+        with:
+          username: nuget
 
       - name: Print Output
         id: output
         run: echo "${{ steps.test-action.outputs.token-info }}"
+

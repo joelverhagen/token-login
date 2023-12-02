@@ -7,6 +7,9 @@ branding:
   color: blue
 
 inputs:
+  username:
+    description: 'The user account that has the configured federated token settings configured.'
+    required: true
   package-source:
     description: 'The package source URL to allow token authentication with.'
     required: true

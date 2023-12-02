@@ -24,6 +24,9 @@ function getTokenClaims(token: string) {
 
 export async function run(): Promise<void> {
   try {
+    const username = requireInput('username')
+    core.debug(`Input username: ${username}`)
+
     const audience = requireInput('audience')
     core.debug(`Input audience: ${audience}`)
 
@@ -47,7 +50,7 @@ export async function run(): Promise<void> {
     const tokenUrl = requireEnv('ACTIONS_ID_TOKEN_REQUEST_URL')
     core.debug(`Token URL: ${tokenUrl}`)
 
-    const tokenInfo = { audience, packageSource, runtimeToken, tokenUrl }
+    const tokenInfo = { audience, packageSource, runtimeToken, tokenUrl, username }
     core.setOutput('token-info', JSON.stringify(tokenInfo))
   } catch (error) {
     if (error instanceof Error) {

@@ -1,8 +1,7 @@
 {
   "name": "oidc-login",
   "description": "Enable using a GitHub Actions OpenID Connect (OIDC) token in the NuGet credential provider.",
-  "version": "0.1.0",
-  "author": "Joel Verhagen",
+  "author": "NuGet Team",
   "private": true,
   "exports": {
     ".": "./dist/index.js"

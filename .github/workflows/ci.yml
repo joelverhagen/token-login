@@ -1,4 +1,4 @@
-name: Integration test
+name: Continuous integration
 
 on:
   pull_request:
@@ -8,14 +8,57 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
+  gha-test:
+    name: GitHub Actions test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          package-source: https://api.nuget.org/v3/index.json
+          username: nuget
+          install-cred-provider: true
+
+      - name: Print Output
+        id: output
+        run: echo "${{ steps.test-action.outputs.token-info }}"
+
+  node-test:
+    name: Node.js test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
+
+      - name: Test
+        id: npm-test
+        run: npm run test
+
   integration-test:
     name: Integration test
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write
 
     steps:
       - uses: actions/checkout@v4

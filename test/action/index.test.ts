@@ -1,4 +1,4 @@
-import * as main from '../src/main'
+import * as main from '../../src/action/main'
 
 const runMock = jest.spyOn(main, 'run').mockImplementation()
 

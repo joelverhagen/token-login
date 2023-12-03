@@ -1,5 +1,5 @@
 {
-  "name": "oidc-login",
+  "name": "token-login",
   "description": "Enable using a GitHub Actions OpenID Connect (OIDC) token in the NuGet credential provider.",
   "author": "NuGet Team",
   "private": true,
@@ -10,7 +10,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "bundle": "ncc build src/index.ts --license licenses.txt",
+    "bundle": "ncc build src/action/index.ts --license licenses.txt",
     "build": "tsc",
     "test": "jest"
   },

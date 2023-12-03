@@ -2,8 +2,7 @@ import * as core from '@actions/core'
 import * as tc from '@actions/tool-cache'
 import * as os from 'os'
 import * as path from 'path'
-import * as main from '../src/main'
-import { PROVIDER_URL } from '../src/main'
+import * as main from '../../src/action/main'
 
 // Mock the action's main function
 const runMock = jest.spyOn(main, 'run')
@@ -66,7 +65,7 @@ describe('action', () => {
     await main.run()
 
     expect(runMock).toHaveReturned()
-    expect(downloadToolMock).toHaveBeenNthCalledWith(1, PROVIDER_URL)
+    expect(downloadToolMock).toHaveBeenNthCalledWith(1, main.PROVIDER_URL)
     const expectedDest = path.join(os.homedir(), '.nuget', 'plugins', 'netcore', 'NuGet.TokenCredentialProvider')
     expect(extractZipMock).toHaveBeenNthCalledWith(1, 'tool-cache-path', expectedDest)
     expect(setOutputMock).toHaveBeenNthCalledWith(1, 'token-info', JSON.stringify({

@@ -6584,7 +6584,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 399:
+/***/ 1623:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -6639,7 +6639,7 @@ function getTokenPayload(token) {
     return payload;
 }
 const providerVersion = "v0.3.0";
-exports.PROVIDER_URL = `https://github.com/joelverhagen/TestCredentialProvider/releases/download/${providerVersion}/NuGet.Protocol.TokenCredentialProvider.zip`;
+exports.PROVIDER_URL = `https://github.com/joelverhagen/TestCredentialProvider/releases/download/${providerVersion}/NuGet.TokenCredentialProvider.zip`;
 async function run() {
     try {
         const username = requireInput('username');
@@ -6853,7 +6853,7 @@ var __webpack_exports__ = {};
 var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const main_1 = __nccwpck_require__(399);
+const main_1 = __nccwpck_require__(1623);
 (0, main_1.run)();
 
 })();

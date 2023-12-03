@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  tests:
-    name: Tests
+  node-test:
+    name: Node.js test
     runs-on: ubuntu-latest
 
     steps:
@@ -34,8 +34,8 @@ jobs:
         id: npm-test
         run: npm run test
 
-  test-action:
-    name: GitHub Actions Test
+  action-test:
+    name: GitHub Actions test
     runs-on: ubuntu-latest
 
     permissions:
@@ -57,3 +57,52 @@ jobs:
       - name: Print Output
         id: output
         run: echo "${{ steps.test-action.outputs.token-info }}"
+
+  nuget-test:
+    name: NuGet credential provider test
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      # - name: Publish
+      #   run: dotnet publish --output ~/.nuget/plugins/netcore/TestCredentialProvider
+
+      - uses: ./
+        id: oidc-login
+        with:
+          username: jver
+          package-source: https://jver-oidc.azurewebsites.net/api/v2/package
+          install-cred-provider: false
+
+      - name: Try delete
+        run: dotnet nuget delete Knapcode.TorSharp 2.15.0 -s https://jver-oidc.azurewebsites.net/api/v2/package --non-interactive
+        env:
+          NUGET_TOKEN_INFO: ${{ steps.oidc-login.outputs.token-info }}
+          NUGET_DANGEROUS_NO_REDACT: true
+
+      - run: ls -R ~/.nuget/plugins
+        if: always()
+
+      - run: cat TestCredentialProvider.log.txt
+        if: always()
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: my-log
+          path: TestCredentialProvider.log.txt
+        if: always()

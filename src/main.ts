@@ -52,13 +52,15 @@ export async function run(): Promise<void> {
     const audience = `${username}@${url.hostname}`
     core.debug(`Using audience: ${audience}`)
 
-    core.debug(`Downloading credential provider from ${PROVIDER_URL}`)
+    core.info(`Downloading credential provider from ${PROVIDER_URL}`)
     const providerSrcPath = await tc.downloadTool(PROVIDER_URL);
-
     const providerDestPath = path.join(os.homedir(), '.nuget', 'plugins', 'netcore', 'NuGet.TokenCredentialProvider')
-    core.debug(`Extracting credential provider to ${providerDestPath}`)
+    
+    core.info(`Extracting credential provider to ${providerDestPath}`)
     await tc.extractZip(providerSrcPath, providerDestPath);
 
+    core.info(`Preparing token info for ${username} on ${packageSource}`)
+    
     core.setOutput('token-info', JSON.stringify({
       type: 'GitHubActionsV1',
       packageSource,

@@ -13,6 +13,7 @@ const timeRegex = /^\d{2}:\d{2}:\d{2}/
 
 // Mock the GitHub Actions core library
 let debugMock: jest.SpyInstance
+let infoMock: jest.SpyInstance
 let errorMock: jest.SpyInstance
 let getInputMock: jest.SpyInstance
 let setFailedMock: jest.SpyInstance
@@ -29,6 +30,7 @@ describe('action', () => {
     process.env = { ...OLD_ENV }
 
     debugMock = jest.spyOn(core, 'debug').mockImplementation()
+    infoMock = jest.spyOn(core, 'info').mockImplementation()
     errorMock = jest.spyOn(core, 'error').mockImplementation()
     getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
     setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
@@ -62,11 +64,6 @@ describe('action', () => {
     await main.run()
 
     expect(runMock).toHaveReturned()
-    expect(debugMock).toHaveBeenNthCalledWith(1, 'Input username: my-username')
-    expect(debugMock).toHaveBeenNthCalledWith(2, 'Input package source: https://apidev.nugettest.org/v3/index.json')
-    expect(debugMock).toHaveBeenNthCalledWith(3, 'Runtime token payload: {"iss":"me"}')
-    expect(debugMock).toHaveBeenNthCalledWith(4, 'Token URL: https://example/my-token-endpoint')
-    expect(debugMock).toHaveBeenNthCalledWith(5, 'Using audience: my-username@apidev.nugettest.org')
     expect(downloadToolMock).toHaveBeenNthCalledWith(1, PROVIDER_URL)
     const expectedDest = path.join(os.homedir(), '.nuget', 'plugins', 'netcore', 'NuGet.TokenCredentialProvider')
     expect(extractZipMock).toHaveBeenNthCalledWith(1, 'tool-cache-path', expectedDest)

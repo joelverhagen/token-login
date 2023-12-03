@@ -49,6 +49,8 @@ jobs:
       - name: Test Local Action
         id: test-action
         uses: ./
+        env:
+          ACTIONS_RUNNER_DEBUG: true
         with:
           username: nuget
 

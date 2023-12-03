@@ -59,5 +59,4 @@ jobs:
         run: echo "${{ steps.test-action.outputs.token-info }}"
 
       - name: Run credential provider
-        run: dotnet ~/.nuget/plugins/netcore/NuGet.TokenCredentialProvider/NuGet.Protocol.TokenCredentialProvider.exe
-
+        run: dotnet ~/.nuget/plugins/netcore/NuGet.TokenCredentialProvider/NuGet.Protocol.TokenCredentialProvider.dll

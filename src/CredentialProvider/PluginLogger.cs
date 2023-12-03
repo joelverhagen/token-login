@@ -37,6 +37,18 @@ class PluginLogger : IDisposable
             Log(LogLevel.Minimal, "NUGET_DANGEROUS_NO_REDACT is enabled so sensitive values will not be redacted from logs.");
         }
     }
+    
+    private void LogToFile(string message)
+    {
+        try
+        {
+            File.AppendAllLines("NuGet.TokenCredentialProvider.log", new[] { message });
+        }
+        catch
+        {
+            // best effort
+        }
+    }
 
     public IPlugin? Plugin { get; set; }
     public LogLevel LogLevel { get; set; } = LogLevel.Debug;
@@ -142,18 +154,6 @@ class PluginLogger : IDisposable
             {
                 LogToFile("Logging error: " + ex);
             }
-        }
-    }
-
-    private static void LogToFile(string message)
-    {
-        try
-        {
-            File.AppendAllLines("TestCredentialProvider.log.txt", new[] { message });
-        }
-        catch
-        {
-            // best effort
         }
     }
 }

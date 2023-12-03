@@ -31,8 +31,8 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
 
-      # - name: Publish
-      #   run: dotnet publish --output ~/.nuget/plugins/netcore/TestCredentialProvider
+      - name: Publish
+        run: dotnet publish --output ~/.nuget/plugins/netcore/NuGet.TokenCredentialProvider
 
       - uses: ./
         id: oidc-login
@@ -50,11 +50,11 @@ jobs:
       - run: ls -R ~/.nuget/plugins
         if: always()
 
-      - run: cat TestCredentialProvider.log.txt
+      - run: cat NuGet.TokenCredentialProvider.log
         if: always()
 
       - uses: actions/upload-artifact@v3
         with:
           name: my-log
-          path: TestCredentialProvider.log.txt
+          path: NuGet.TokenCredentialProvider.log
         if: always()

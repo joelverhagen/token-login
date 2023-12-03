@@ -25,7 +25,8 @@ jobs:
       fail-fast: false
       matrix:
         language:
-          - TypeScript
+          - typescript
+          - csharp
 
     steps:
       - name: Checkout

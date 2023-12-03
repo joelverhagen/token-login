@@ -1,5 +1,9 @@
 import * as core from '@actions/core'
+import * as tc from '@actions/tool-cache'
+import * as os from 'os'
+import * as path from 'path'
 import * as main from '../src/main'
+import { PROVIDER_URL } from '../src/main'
 
 // Mock the action's main function
 const runMock = jest.spyOn(main, 'run')
@@ -13,6 +17,8 @@ let errorMock: jest.SpyInstance
 let getInputMock: jest.SpyInstance
 let setFailedMock: jest.SpyInstance
 let setOutputMock: jest.SpyInstance
+let downloadToolMock: jest.SpyInstance
+let extractZipMock: jest.SpyInstance
 
 describe('action', () => {
   const OLD_ENV = process.env;
@@ -28,6 +34,9 @@ describe('action', () => {
     setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
     setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
 
+    downloadToolMock = jest.spyOn(tc, 'downloadTool').mockImplementation()
+    extractZipMock = jest.spyOn(tc, 'extractZip').mockImplementation()
+
     getInputMock.mockImplementation((name: string): string => {
       switch (name) {
         case 'username':
@@ -38,6 +47,8 @@ describe('action', () => {
           return ''
       }
     })
+
+    downloadToolMock.mockImplementation(() => "tool-cache-path")
 
     process.env.ACTIONS_RUNTIME_TOKEN = `a.${btoa(JSON.stringify({ iss: 'me' }))}.z`
     process.env.ACTIONS_ID_TOKEN_REQUEST_URL = `https://example/my-token-endpoint`
@@ -56,6 +67,9 @@ describe('action', () => {
     expect(debugMock).toHaveBeenNthCalledWith(3, 'Runtime token payload: {"iss":"me"}')
     expect(debugMock).toHaveBeenNthCalledWith(4, 'Token URL: https://example/my-token-endpoint')
     expect(debugMock).toHaveBeenNthCalledWith(5, 'Using audience: my-username@apidev.nugettest.org')
+    expect(downloadToolMock).toHaveBeenNthCalledWith(1, PROVIDER_URL)
+    const expectedDest = path.join(os.homedir(), '.nuget', 'plugins', 'netcore', 'NuGet.TokenCredentialProvider')
+    expect(extractZipMock).toHaveBeenNthCalledWith(1, 'tool-cache-path', expectedDest)
     expect(setOutputMock).toHaveBeenNthCalledWith(1, 'token-info', JSON.stringify({
       type: "GitHubActionsV1",
       packageSource: "https://apidev.nugettest.org/v3/index.json",

@@ -1,8 +1,7 @@
 import * as core from '@actions/core'
-
-function getInput(key: string) {
-  return core.getInput(key, { required: false, trimWhitespace: true })
-}
+import * as tc from '@actions/tool-cache'
+import * as os from 'os'
+import * as path from 'path'
 
 function requireInput(key: string) {
   const value = core.getInput(key, { required: true, trimWhitespace: true })
@@ -25,6 +24,9 @@ function getTokenPayload(token: string) {
   const payload = Buffer.from(tokenPieces[1], 'base64').toString();
   return payload;
 }
+
+const providerVersion = "v0.3.0"
+export const PROVIDER_URL = `https://github.com/joelverhagen/TestCredentialProvider/releases/download/${providerVersion}/NuGet.Protocol.TokenCredentialProvider.zip`
 
 export async function run(): Promise<void> {
   try {
@@ -49,6 +51,13 @@ export async function run(): Promise<void> {
 
     const audience = `${username}@${url.hostname}`
     core.debug(`Using audience: ${audience}`)
+
+    core.debug(`Downloading credential provider from ${PROVIDER_URL}`)
+    const providerSrcPath = await tc.downloadTool(PROVIDER_URL);
+
+    const providerDestPath = path.join(os.homedir(), '.nuget', 'plugins', 'netcore', 'NuGet.TokenCredentialProvider')
+    core.debug(`Extracting credential provider to ${providerDestPath}`)
+    await tc.extractZip(providerSrcPath, providerDestPath);
 
     core.setOutput('token-info', JSON.stringify({
       type: 'GitHubActionsV1',

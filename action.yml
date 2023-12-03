@@ -7,17 +7,13 @@ branding:
   color: blue
 
 inputs:
-  username:
-    description: 'The user account that has the configured federated token settings configured.'
-    required: true
   package-source:
     description: 'The package source URL to allow token authentication with.'
     required: true
     default: 'https://api.nuget.org/v3/index.json'
-  audience:
-    description: 'The desired audience claim to use for the OIDC token. Defaults to nuget.org.'
+  username:
+    description: 'The user account that is configured for GitHub federated tokens.'
     required: true
-    default: 'nuget.org'
 
 outputs:
   token-info:

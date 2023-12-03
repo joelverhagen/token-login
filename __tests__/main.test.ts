@@ -32,8 +32,6 @@ describe('action', () => {
       switch (name) {
         case 'username':
           return 'my-username'
-        case 'audience':
-          return 'dev.nugettest.org'
         case 'package-source':
           return 'https://apidev.nugettest.org/v3/index.json'
         default:
@@ -49,21 +47,21 @@ describe('action', () => {
     process.env = OLD_ENV
   });
 
-  it('sets the token-info output', async () => {
+  it('sets the token-info output with username', async () => {
     await main.run()
 
     expect(runMock).toHaveReturned()
     expect(debugMock).toHaveBeenNthCalledWith(1, 'Input username: my-username')
-    expect(debugMock).toHaveBeenNthCalledWith(2, 'Input audience: dev.nugettest.org')
-    expect(debugMock).toHaveBeenNthCalledWith(3, 'Input package source: https://apidev.nugettest.org/v3/index.json')
-    expect(debugMock).toHaveBeenNthCalledWith(4, 'Runtime token payload: {"iss":"me"}')
-    expect(debugMock).toHaveBeenNthCalledWith(5, 'Token URL: https://example/my-token-endpoint')
+    expect(debugMock).toHaveBeenNthCalledWith(2, 'Input package source: https://apidev.nugettest.org/v3/index.json')
+    expect(debugMock).toHaveBeenNthCalledWith(3, 'Runtime token payload: {"iss":"me"}')
+    expect(debugMock).toHaveBeenNthCalledWith(4, 'Token URL: https://example/my-token-endpoint')
+    expect(debugMock).toHaveBeenNthCalledWith(5, 'Using audience: my-username@apidev.nugettest.org')
     expect(setOutputMock).toHaveBeenNthCalledWith(1, 'token-info', JSON.stringify({
-      audience: "dev.nugettest.org",
+      type: "GitHubActionsV1",
       packageSource: "https://apidev.nugettest.org/v3/index.json",
+      audience: "my-username@apidev.nugettest.org",
       runtimeToken: "a.eyJpc3MiOiJtZSJ9.z",
       tokenUrl: "https://example/my-token-endpoint",
-      username: "my-username",
     }))
     expect(errorMock).not.toHaveBeenCalled()
   })
@@ -79,25 +77,7 @@ describe('action', () => {
     await main.run()
 
     expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'The username input value must be set')
-    expect(setOutputMock).not.toHaveBeenCalled()
-    expect(errorMock).not.toHaveBeenCalled()
-  })
-
-  it('requires audience input', async () => {
-    getInputMock.mockImplementation((name: string): string => {
-      switch (name) {
-        case 'username':
-          return 'my-username'
-        default:
-          return ''
-      }
-    })
-
-    await main.run()
-
-    expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'The audience input value must be set')
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, "The 'username' input value must be set")
     expect(setOutputMock).not.toHaveBeenCalled()
     expect(errorMock).not.toHaveBeenCalled()
   })
@@ -107,8 +87,6 @@ describe('action', () => {
       switch (name) {
         case 'username':
           return 'my-username'
-        case 'audience':
-          return 'dev.nugettest.org'
         default:
           return ''
       }
@@ -117,7 +95,7 @@ describe('action', () => {
     await main.run()
 
     expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'The package-source input value must be set')
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, "The 'package-source' input value must be set")
     expect(setOutputMock).not.toHaveBeenCalled()
     expect(errorMock).not.toHaveBeenCalled()
   })
@@ -127,8 +105,6 @@ describe('action', () => {
       switch (name) {
         case 'username':
           return 'my-username'
-        case 'audience':
-          return 'dev.nugettest.org'
         case 'package-source':
           return 'invalid'
         default:
@@ -139,29 +115,7 @@ describe('action', () => {
     await main.run()
 
     expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'An valid HTTPS package source URL is required')
-    expect(setOutputMock).not.toHaveBeenCalled()
-    expect(errorMock).not.toHaveBeenCalled()
-  })
-
-  it('requires HTTPS package source URL', async () => {
-    getInputMock.mockImplementation((name: string): string => {
-      switch (name) {
-        case 'username':
-          return 'my-username'
-        case 'audience':
-          return 'dev.nugettest.org'
-        case 'package-source':
-          return 'http://apidev.nugettest.org/v3/index.json' // DevSkim: ignore DS137138
-        default:
-          return ''
-      }
-    })
-
-    await main.run()
-
-    expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'An HTTPS package source URL is required. The value provided protocol was http:')
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'An valid package source URL is required')
     expect(setOutputMock).not.toHaveBeenCalled()
     expect(errorMock).not.toHaveBeenCalled()
   })
@@ -172,7 +126,7 @@ describe('action', () => {
     await main.run()
 
     expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'The ACTIONS_RUNTIME_TOKEN environment variable must be set')
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, "The 'ACTIONS_RUNTIME_TOKEN' environment variable must be set")
     expect(setOutputMock).not.toHaveBeenCalled()
     expect(errorMock).not.toHaveBeenCalled()
   })
@@ -183,7 +137,7 @@ describe('action', () => {
     await main.run()
 
     expect(runMock).toHaveReturned()
-    expect(setFailedMock).toHaveBeenNthCalledWith(1, 'The ACTIONS_ID_TOKEN_REQUEST_URL environment variable must be set')
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, "The 'ACTIONS_ID_TOKEN_REQUEST_URL' environment variable must be set")
     expect(setOutputMock).not.toHaveBeenCalled()
     expect(errorMock).not.toHaveBeenCalled()
   })

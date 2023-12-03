@@ -6665,7 +6665,6 @@ async function run() {
             core.info(`Extracting credential provider to ${providerDestPath}`);
             await tc.extractZip(providerSrcPath, providerDestPath);
         }
-        core.info(`Preparing token info for ${username} on ${packageSource}`);
         core.setOutput('token-info', JSON.stringify({
             type: 'GitHubActionsV1',
             packageSource,
@@ -6673,6 +6672,7 @@ async function run() {
             runtimeToken,
             tokenUrl,
         }));
+        core.info(`Done preparing token info for ${username} on ${packageSource}`);
     }
     catch (error) {
         if (error instanceof Error) {

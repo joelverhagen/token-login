@@ -1,0 +1,35 @@
+name: GitHub Actions test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  gha-test:
+    name: GitHub Actions test
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          package-source: https://api.nuget.org/v3/index.json
+          username: nuget
+          install-cred-provider: true
+
+      - name: Print Output
+        id: output
+        run: echo "${{ steps.test-action.outputs.token-info }}"

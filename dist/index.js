@@ -6623,6 +6623,7 @@ function requireInput(key) {
     if (!value) {
         throw new Error(`The '${key}' input value must be set`);
     }
+    core.debug(`Input '${key}': ${value}`);
     return value;
 }
 function requireEnv(key) {
@@ -6642,9 +6643,8 @@ exports.PROVIDER_URL = `https://github.com/joelverhagen/TestCredentialProvider/r
 async function run() {
     try {
         const username = requireInput('username');
-        core.debug(`Input username: ${username}`);
         const packageSource = requireInput('package-source');
-        core.debug(`Input package source: ${packageSource}`);
+        const installCredentialProvider = requireInput('install-cred-provider');
         const runtimeToken = requireEnv('ACTIONS_RUNTIME_TOKEN');
         core.debug(`Runtime token payload: ${getTokenPayload(runtimeToken)}`);
         const tokenUrl = requireEnv('ACTIONS_ID_TOKEN_REQUEST_URL');
@@ -6658,11 +6658,13 @@ async function run() {
         }
         const audience = `${username}@${url.hostname}`;
         core.debug(`Using audience: ${audience}`);
-        core.info(`Downloading credential provider from ${exports.PROVIDER_URL}`);
-        const providerSrcPath = await tc.downloadTool(exports.PROVIDER_URL);
-        const providerDestPath = path.join(os.homedir(), '.nuget', 'plugins', 'netcore', 'NuGet.TokenCredentialProvider');
-        core.info(`Extracting credential provider to ${providerDestPath}`);
-        await tc.extractZip(providerSrcPath, providerDestPath);
+        if (installCredentialProvider.toLowerCase() != 'false') {
+            core.info(`Downloading credential provider from ${exports.PROVIDER_URL}`);
+            const providerSrcPath = await tc.downloadTool(exports.PROVIDER_URL);
+            const providerDestPath = path.join(os.homedir(), '.nuget', 'plugins', 'netcore', 'NuGet.TokenCredentialProvider');
+            core.info(`Extracting credential provider to ${providerDestPath}`);
+            await tc.extractZip(providerSrcPath, providerDestPath);
+        }
         core.info(`Preparing token info for ${username} on ${packageSource}`);
         core.setOutput('token-info', JSON.stringify({
             type: 'GitHubActionsV1',

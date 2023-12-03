@@ -45,6 +45,8 @@ describe('action', () => {
           return 'my-username'
         case 'package-source':
           return 'https://apidev.nugettest.org/v3/index.json'
+        case 'install-cred-provider':
+          return 'true'
         default:
           return ''
       }
@@ -77,9 +79,42 @@ describe('action', () => {
     expect(errorMock).not.toHaveBeenCalled()
   })
 
+  it('allows credential provider to not be installed', async () => {
+    getInputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'username':
+          return 'my-username'
+        case 'package-source':
+          return 'https://apidev.nugettest.org/v3/index.json'
+        case 'install-cred-provider':
+          return 'false'
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+
+    expect(runMock).toHaveReturned()
+    expect(downloadToolMock).not.toHaveBeenCalled()
+    expect(extractZipMock).not.toHaveBeenCalled()
+    expect(setOutputMock).toHaveBeenNthCalledWith(1, 'token-info', JSON.stringify({
+      type: "GitHubActionsV1",
+      packageSource: "https://apidev.nugettest.org/v3/index.json",
+      audience: "my-username@apidev.nugettest.org",
+      runtimeToken: "a.eyJpc3MiOiJtZSJ9.z",
+      tokenUrl: "https://example/my-token-endpoint",
+    }))
+    expect(errorMock).not.toHaveBeenCalled()
+  })
+
   it('requires username input', async () => {
     getInputMock.mockImplementation((name: string): string => {
       switch (name) {
+        case 'package-source':
+          return 'https://apidev.nugettest.org/v3/index.json'
+        case 'install-cred-provider':
+          return 'true'
         default:
           return ''
       }
@@ -98,6 +133,8 @@ describe('action', () => {
       switch (name) {
         case 'username':
           return 'my-username'
+        case 'install-cred-provider':
+          return 'true'
         default:
           return ''
       }
@@ -111,6 +148,26 @@ describe('action', () => {
     expect(errorMock).not.toHaveBeenCalled()
   })
 
+  it('requires install-cred-provider input', async () => {
+    getInputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'username':
+          return 'my-username'
+        case 'package-source':
+          return 'https://apidev.nugettest.org/v3/index.json'
+        default:
+          return ''
+      }
+    })
+
+    await main.run()
+
+    expect(runMock).toHaveReturned()
+    expect(setFailedMock).toHaveBeenNthCalledWith(1, "The 'install-cred-provider' input value must be set")
+    expect(setOutputMock).not.toHaveBeenCalled()
+    expect(errorMock).not.toHaveBeenCalled()
+  })
+
   it('requires valid package source URL', async () => {
     getInputMock.mockImplementation((name: string): string => {
       switch (name) {
@@ -118,6 +175,8 @@ describe('action', () => {
           return 'my-username'
         case 'package-source':
           return 'invalid'
+        case 'install-cred-provider':
+          return 'true'
         default:
           return ''
       }

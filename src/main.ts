@@ -8,6 +8,7 @@ function requireInput(key: string) {
   if (!value) {
     throw new Error(`The '${key}' input value must be set`)
   }
+  core.debug(`Input '${key}': ${value}`)
   return value
 }
 
@@ -31,10 +32,8 @@ export const PROVIDER_URL = `https://github.com/joelverhagen/TestCredentialProvi
 export async function run(): Promise<void> {
   try {
     const username = requireInput('username')
-    core.debug(`Input username: ${username}`)
-
     const packageSource = requireInput('package-source')
-    core.debug(`Input package source: ${packageSource}`)
+    const installCredentialProvider = requireInput('install-cred-provider')
 
     const runtimeToken = requireEnv('ACTIONS_RUNTIME_TOKEN')
     core.debug(`Runtime token payload: ${getTokenPayload(runtimeToken)}`)
@@ -52,15 +51,17 @@ export async function run(): Promise<void> {
     const audience = `${username}@${url.hostname}`
     core.debug(`Using audience: ${audience}`)
 
-    core.info(`Downloading credential provider from ${PROVIDER_URL}`)
-    const providerSrcPath = await tc.downloadTool(PROVIDER_URL);
-    const providerDestPath = path.join(os.homedir(), '.nuget', 'plugins', 'netcore', 'NuGet.TokenCredentialProvider')
-    
-    core.info(`Extracting credential provider to ${providerDestPath}`)
-    await tc.extractZip(providerSrcPath, providerDestPath);
+    if (installCredentialProvider.toLowerCase() != 'false') {
+      core.info(`Downloading credential provider from ${PROVIDER_URL}`)
+      const providerSrcPath = await tc.downloadTool(PROVIDER_URL);
+      const providerDestPath = path.join(os.homedir(), '.nuget', 'plugins', 'netcore', 'NuGet.TokenCredentialProvider')
+
+      core.info(`Extracting credential provider to ${providerDestPath}`)
+      await tc.extractZip(providerSrcPath, providerDestPath);
+    }
 
     core.info(`Preparing token info for ${username} on ${packageSource}`)
-    
+
     core.setOutput('token-info', JSON.stringify({
       type: 'GitHubActionsV1',
       packageSource,

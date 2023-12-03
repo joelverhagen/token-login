@@ -60,8 +60,6 @@ export async function run(): Promise<void> {
       await tc.extractZip(providerSrcPath, providerDestPath);
     }
 
-    core.info(`Preparing token info for ${username} on ${packageSource}`)
-
     core.setOutput('token-info', JSON.stringify({
       type: 'GitHubActionsV1',
       packageSource,
@@ -69,6 +67,8 @@ export async function run(): Promise<void> {
       runtimeToken,
       tokenUrl,
     }))
+
+    core.info(`Done preparing token info for ${username} on ${packageSource}`)
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(error.message)

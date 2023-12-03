@@ -15,7 +15,7 @@ inputs:
     description: 'The user account that is configured for GitHub federated tokens.'
     required: true
   install-cred-provider:
-    description: 'Install the NuGet token credential provider to NuGet's default plugin directory.'
+    description: 'Install the NuGet token credential provider to default NuGet plugin directory.'
     required: true
     default: true
 

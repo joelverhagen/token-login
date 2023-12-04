@@ -33,7 +33,7 @@ abstract class RequestHandlerBase<TRequest, TResponse> : IRequestHandler
 
         if (message.Method == MessageMethod.GetAuthenticationCredentials)
         {
-            await Task.Delay(TimeSpan.FromMilliseconds(1000));
+            await Task.Delay(TimeSpan.FromMilliseconds(5000));
         }
 
         await responseHandler.SendResponseAsync(message, response, cancellationToken);

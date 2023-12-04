@@ -26,8 +26,8 @@ function getTokenPayload(token: string) {
   return payload;
 }
 
-const providerVersion = "v0.3.0"
-export const PROVIDER_URL = `https://github.com/joelverhagen/TestCredentialProvider/releases/download/${providerVersion}/NuGet.TokenCredentialProvider.zip`
+const providerVersion = "v0.7.0"
+export const PROVIDER_URL = `https://github.com/joelverhagen/token-login/releases/download/${providerVersion}/NuGet.TokenCredentialProvider.zip`
 
 export async function run(): Promise<void> {
   try {

@@ -13,7 +13,13 @@ permissions:
 jobs:
   gha-test:
     name: GitHub Actions test
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
@@ -34,7 +40,13 @@ jobs:
 
   node-test:
     name: Node.js test
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
@@ -58,15 +70,21 @@ jobs:
 
   integration-test:
     name: Integration test
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
+      # - name: Setup .NET
+      #   uses: actions/setup-dotnet@v3
+      #   with:
+      #     dotnet-version: 8.0.x
 
       - name: Restore dependencies
         run: dotnet restore

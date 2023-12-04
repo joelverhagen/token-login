@@ -27,14 +27,9 @@ abstract class RequestHandlerBase<TRequest, TResponse> : IRequestHandler
 
         _logger.Log(LogLevel.Debug, $"Sending response: {Serialize(response)}");
 
-        // Wait a little bit of time before sending the response to allow logs to be flushed. This provides more
-        // reliable logging visible in NuGet's logging output.
+        // Allow a little bit of time before sending the response to let log flush.
+        // This provides more reliable logging visible in NuGet's logging output.
         await _logger.PauseForEmptyAsync(TimeSpan.FromMilliseconds(500));
-
-        if (message.Method == MessageMethod.GetAuthenticationCredentials)
-        {
-            await Task.Delay(TimeSpan.FromMilliseconds(5000));
-        }
 
         await responseHandler.SendResponseAsync(message, response, cancellationToken);
 

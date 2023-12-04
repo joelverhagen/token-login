@@ -6638,8 +6638,8 @@ function getTokenPayload(token) {
     const payload = Buffer.from(tokenPieces[1], 'base64').toString();
     return payload;
 }
-const providerVersion = "v0.3.0";
-exports.PROVIDER_URL = `https://github.com/joelverhagen/TestCredentialProvider/releases/download/${providerVersion}/NuGet.TokenCredentialProvider.zip`;
+const providerVersion = "v0.7.0";
+exports.PROVIDER_URL = `https://github.com/joelverhagen/token-login/releases/download/${providerVersion}/NuGet.TokenCredentialProvider.zip`;
 async function run() {
     try {
         const username = requireInput('username');

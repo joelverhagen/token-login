@@ -1,23 +1,32 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'OpenID Connect login for NuGet'
+description: 'Enable using a GitHub Actions OpenID Connect (OIDC) token in the NuGet credential provider.'
+author: 'Joel Verhagen'
 
-# Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: package
+  color: blue
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  package-source:
+    description: 'The package source URL to allow token authentication with.'
     required: true
-    default: '1000'
+    default: 'https://api.nuget.org/v3/index.json'
+  username:
+    description: 'The user account that is configured for GitHub federated tokens.'
+    required: true
+  install-cred-provider:
+    description: 'Install the NuGet token credential provider to default NuGet plugin directory.'
+    required: true
+    default: true
+  cred-provider-url:
+    description: 'The URL to fetch the credential provider from. Defaults to the the official distribution.'
+    required: false
 
-# Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  token-info:
+    description: 'The GitHub Actions OIDC token info used by the NuGet credential provider'
+  cred-provider-dir:
+    description: 'The full path to the credential provider directory, if it exists'
 
 runs:
   using: node20

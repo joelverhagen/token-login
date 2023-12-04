@@ -31,6 +31,11 @@ abstract class RequestHandlerBase<TRequest, TResponse> : IRequestHandler
         // reliable logging visible in NuGet's logging output.
         await _logger.PauseForEmptyAsync(TimeSpan.FromMilliseconds(500));
 
+        if (message.Method == MessageMethod.GetAuthenticationCredentials)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(1000));
+        }
+
         await responseHandler.SendResponseAsync(message, response, cancellationToken);
 
         // Only start the logger after we know the log level. If we start sending log messages too early the

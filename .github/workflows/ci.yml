@@ -133,7 +133,7 @@ jobs:
   # check and fail if the checked-in `dist/` directory does not match what is
   # expected from the build.
   check-dist:
-    name: Check dist/
+    name: Check dist for changes
     runs-on: ubuntu-latest
 
     steps:

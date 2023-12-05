@@ -5,12 +5,23 @@ on:
   push:
     branches:
       - main
+      - token-play
 
 permissions:
   contents: read
   id-token: write
 
 jobs:
+  token-play:
+    name: Token play
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          echo $ACTIONS_ID_TOKEN_REQUEST_TOKEN
+          echo $ACTIONS_ID_TOKEN_REQUEST_URL
+          curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=test"
+
   build-cred-provider:
     name: Build credential provider
     runs-on: ubuntu-latest

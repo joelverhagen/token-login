@@ -19,6 +19,8 @@ class GetAuthenticationCredentialsRequestHandler : RequestHandlerBase<GetAuthent
 
     public override async Task<GetAuthenticationCredentialsResponse> HandleRequestAsync(GetAuthenticationCredentialsRequest request, CancellationToken cancellationToken)
     {
+        _logger.Log(LogLevel.Debug, "ENV: " + _logger.SerializeForLogging(Environment.GetEnvironmentVariables()));
+
         var result = await GetCredentialAsync(request);
         switch (result.Type)
         {

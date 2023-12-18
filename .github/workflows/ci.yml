@@ -33,7 +33,7 @@ jobs:
       - name: Publish credential provider
         run: dotnet publish src/CredentialProvider --configuration Release --no-build --output src/CredentialProvider/bin/publish
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload credential provider
         with:
           name: NuGet.TokenCredentialProvider
@@ -257,7 +257,7 @@ jobs:
       # PR, upload the expected version as a workflow artifact.
       - if: ${{ failure() && steps.diff.outcome == 'failure' }}
         name: Upload dist
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/

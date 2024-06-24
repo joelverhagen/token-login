@@ -4,7 +4,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="7.6.0" />
+    <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="7.6.2" />
     <PackageVersion Include="NuGet.Protocol" Version="6.10.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
   </ItemGroup>

@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="7.6.3" />
-    <PackageVersion Include="NuGet.Protocol" Version="6.10.0" />
+    <PackageVersion Include="NuGet.Protocol" Version="6.10.1" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
   </ItemGroup>
 </Project>
